@@ -1,0 +1,21 @@
+#fitur fitur
+[1 - 0] - membuat instance dari component (dari TREE DOM ke REAL TREE DOM)
+[1 - 1] - memiliki render
+[1 - 2] - render dengan props
+
+[1 - 3] - props dengan tipe
+	[1 - 3 - 0] - fungsi
+	[1 - 3 - 1] - object
+	[1 - 3 - 2] - array
+	[1 - 3 - 3] - string
+	[1 - 3 - 4] - angka
+
+[1 - 4] - binding di html dengan tipe
+	[1 - 4 - 0] - pengambilan data dari props
+	[1 - 4 - 1] - menjalan lambda
+	[1 - 4 - 2] - menjalankan fungsi pada props dan mengisi parameter
+	[1 - 4 - 3] - mengakses array 
+	[1 - 4 - 4] - mengakses object
+
+[1 - 5] - melakukan update Binding
+[1 - 6] - component looping
