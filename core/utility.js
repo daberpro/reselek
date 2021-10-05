@@ -316,17 +316,36 @@ function toRawComponent(component){
 
 	}
 
+	let template = ``;
 
+	if(component.type === "ChildComponent"){
 
-	let template = `
+		template = `
 
-		createElement("${component.name}",{
-			inner: "${component.content}",
-			children: [${children}],
-			props: ${toString(component.props)}
-		})
+			createElement("${component.name}",{
+				inner: "${component.content}",
+				children: [${children}],
+				props: ${toString(component.props)}
+			})
 
-	`;
+		`;
+
+	}
+
+	if(component.type === "LoopComponent"){
+
+		template = `
+
+			loopComponent("${component.name}",{
+				inner: "${component.content}",
+				child: ${toRawComponent(component.child)},
+				props: ${toString(component.props)},
+				loop: "${component.loop}"
+			})
+
+		`;
+
+	}
 
 	return template;
 
@@ -370,6 +389,9 @@ export function loopComponent(name,inner){
 
 	return {
 		...parentElement,
+		child: inner["child"],
+		loop: inner["loop"],
+		props: parentElement["props"],
 		update(){
 
 			let allElement = [];
@@ -382,7 +404,7 @@ export function loopComponent(name,inner){
 
 			this.children = [];
 
-			if(token[2] in inner["props"]){
+			if(token[2] in this.props){
 
 				try{
 
@@ -394,7 +416,7 @@ export function loopComponent(name,inner){
 
 					}
 
-					eval(`for(let ${token[0]} ${token[1]} inner["props"]["${token[2]}"]){
+					eval(`for(let ${token[0]} ${token[1]} this.props["${token[2]}"]){
 
 						this.children.push(createElement(inner["child"].name,{
 							inner: inner["child"].content,

@@ -8,15 +8,31 @@ import { Reactivity } from "./reactivity.js";
 // component
 function setProps(child,props,value){
 
-	if(child.props.hasOwnProperty(props)) child.props[props] = value;
+	if(child.props[props] !== void 0) child.props[props] = value;
 
-	if(child.children.length > 0) for(let x of child.children){
+	if(child.children.length > 0){
 
-		setProps(x,props,value);
+		for(let x of child.children){
+
+			setProps(x,props,value);
+
+		}
+
+	}
+
+	if(child.hasOwnProperty("child") && child.child.children.length > 0){
+
+		for(let x of child.child.children){
+
+			setProps(x,props,value);
+
+		}		
 
 	}
 
 }
+
+window.setProps = setProps
 
 // fungsi ini berfungsi untuk
 // mengupdate semua child ketika
@@ -59,6 +75,7 @@ export class Component extends Core{
 		// mengset fragment dan context
 		this.fragment = {};
 		this.context = {};
+		this.state = {};
 
 	}
 
@@ -83,7 +100,7 @@ export class Component extends Core{
 
 		const fragment = this.fragment;
 
-		return new Reactivity(this.context).create({
+		this.state = new Reactivity(this.context).create({
 
 			eventSetter(args){
 
@@ -118,6 +135,31 @@ export class Component extends Core{
 			...child.props
 		}
 
+		const fragment = this.fragment;
+
+		this.state = new Reactivity(this.context).create({
+
+			eventSetter(args){
+
+				if(args[0].hasOwnProperty(args[1])){
+
+					setProps(fragment,args[1],args[2]);
+					updateChild(fragment);
+
+				}else{
+
+					console.warn("props not found!");
+
+				}
+
+			},
+			eventGetter(args){
+
+				return args[0][args[1]];
+				
+			}
+		})
+
 		return {
 			...child,
 			type: "ChildComponent"
@@ -134,6 +176,31 @@ export class Component extends Core{
 			...this.context,
 			...element.props
 		}
+
+		const fragment = this.fragment;
+
+		this.state = new Reactivity(this.context).create({
+
+			eventSetter(args){
+
+				if(args[0].hasOwnProperty(args[1])){
+
+					setProps(fragment,args[1],args[2]);
+					updateChild(fragment);
+
+				}else{
+
+					console.warn("props not found!");
+
+				}
+
+			},
+			eventGetter(args){
+
+				return args[0][args[1]];
+				
+			}
+		});
 
 		return {
 			...element,

@@ -3,7 +3,7 @@ import { Component } from "./core/component.js";
 // [1 - 0]
 const App = new Component();
 
-const Main = App.create("div",{
+App.create("div",{
 	// [1 - 4]
 	// [1 - 4 - 0]
 	// [1 - 4 - 1]
@@ -40,16 +40,16 @@ const Main = App.create("div",{
 						children:[
 							App.createChild("span"," world"),
 							App.createLoop("h1",{
-								loop: "x of y",
+								loop: "z of data",
 								props: {
-									y: [1,2,3,4]
+									data: [1,2,3,4]
 								},
-								inner:"",
+								inner:"hadehh",
 								child: App.createChild("p",{
 									props:{
-										x: null
+										z: null
 									},
-									inner: `{{x}}`
+									inner: `{{z}}`
 								})
 							})
 						],
@@ -93,12 +93,17 @@ const Main = App.create("div",{
 		},
 		list: [1,2,3] //[1 - 3 - 2]
 	}
-});
+},
+App.fragment);
 
 // [1 - 1]
 App.render(document.body);
 
 // [1 - 5]
-Main.umur = 100;
+App.state.umur = 100;
+App.state.num = [{nama: "daber"},{nama: "mark"},{nama: "mark"}]
+App.state.data = [9,8,7];
 
-Main.num = [{nama: "daber"},{nama: "mark"}]
+window.App = App;
+
+console.log(App.fragment)
