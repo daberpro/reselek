@@ -19,7 +19,7 @@ export function checkBinding(text_node){
 
 	// melakukan pengecekan apakah 
 	// variabel allBindungValye merupakan array
-	if(allBindingValue instanceof Array){
+	if(allBindingValue instanceof Array && allBindingValue.length !== 0){
 
 		// melakukan perulangan dan megambil attribute
 		for(let x of allBindingValue){
@@ -165,6 +165,31 @@ export function createElement(name,inner){
 		// menambahkan textnode dari _inner ke dalam element
 		element.appendChild(_inner);
 
+		if(inner.hasOwnProperty("attribute")) for(let x in inner["attribute"]){
+
+			let bind = checkBinding(inner["attribute"][x]);
+
+			if(bind.binding){
+
+				for(let y in bind.value) if(inner["props"].hasOwnProperty(y)){
+
+					element.setAttribute(x,inner["attribute"][x].replaceAll(bind.value[y],inner["props"][y]));					
+
+				}else{
+
+					console.warn(y+" props not found!!");
+					element.setAttribute(x,void 0);
+
+				}
+
+			}else{
+
+				element.setAttribute(x,inner["attribute"][x]);
+
+			}
+
+		}
+
 	}
 
 	// mengambil chlidren
@@ -183,10 +208,34 @@ export function createElement(name,inner){
 		// fungsi untuk melakukan update
 		// jika terjadi perubahan pada props
 		update(){
-
-			let element = document.createElement(name);
+		
 			let _inner = document.createTextNode(inner);
 
+			if(inner.hasOwnProperty("attribute")) for(let x in inner["attribute"]){
+
+				let bind = checkBinding(inner["attribute"][x]);
+
+				if(bind.binding){
+
+					for(let y in bind.value) if(inner["props"].hasOwnProperty(y)){
+
+						element.setAttribute(x,inner["attribute"][x].replaceAll(bind.value[y],inner["props"][y]));					
+
+					}else{
+
+						console.warn(y+" props not found!!");
+						element.setAttribute(x,void 0);
+
+					}
+
+				}else{
+
+					element.setAttribute(x,inner["attribute"][x]);
+
+				}
+
+			}
+			
 			if((inner instanceof Object)){
 
 				inner["inner"] = inner["inner"].replace(/(\n|\t)/igm," ");
@@ -439,6 +488,70 @@ export function loopComponent(name,inner){
 			for(let x of this.children){
 
 				rootElement(x,parentElement.element);
+
+			}
+
+		}
+	}
+
+}
+
+export function desrtoyChild(child){
+
+	child.element.remove();
+
+	if(child.children.length > 0){
+
+		for(let x of child.children) desrtoyChild(x);
+
+	}
+
+}
+
+export function conditionalComponent(name, inner){
+
+	const parentElement = createElement(name,inner);
+
+
+	if(inner["props"][inner["condition"]]){
+
+		for(let x of parentElement.children){
+
+			rootElement(x,parentElement.element);
+
+		}
+
+	}else{
+
+		for(let x of parentElement.children){
+
+			desrtoyChild(x);
+
+		}
+
+	}
+
+	return {
+		...parentElement,
+		update(){
+
+			if(inner["props"][inner["condition"]]){
+
+				
+				for(let x of parentElement.children){
+
+					rootElement(x,parentElement.element);
+
+				}				
+
+
+			}else{
+
+				for(let x of parentElement.children){
+
+					desrtoyChild(x);
+
+				}
 
 			}
 

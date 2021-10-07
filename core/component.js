@@ -1,5 +1,13 @@
 import { Core } from "./core.js";
-import { createElement, loopComponent } from "./utility.js";
+import { 
+
+	createElement,
+	loopComponent,
+	conditionalComponent,
+	desrtoyChild
+
+} from "./utility.js";
+
 import { Reactivity } from "./reactivity.js";
 
 // fungsi ini melakukan
@@ -10,29 +18,21 @@ function setProps(child,props,value){
 
 	if(child.props[props] !== void 0) child.props[props] = value;
 
-	if(child.children.length > 0){
+	updateChild(child);
 
-		for(let x of child.children){
+	if(child.children.length > 0) for(let x of child.children){
 
-			setProps(x,props,value);
-
-		}
+		setProps(x,props,value);
 
 	}
 
-	if(child.hasOwnProperty("child") && child.child.children.length > 0){
+	if(child.hasOwnProperty("child") && child.child.children.length > 0) for(let x of child.child.children){
 
-		for(let x of child.child.children){
-
-			setProps(x,props,value);
-
-		}		
+		setProps(x,props,value);
 
 	}
 
 }
-
-window.setProps = setProps
 
 // fungsi ini berfungsi untuk
 // mengupdate semua child ketika
@@ -49,17 +49,6 @@ function updateChild(child){
 
 }
 
-function desrtoyChild(child){
-
-	child.element.remove();
-
-	if(child.children.length > 0){
-
-		for(let x of child.children) desrtoyChild(x);
-
-	}
-
-}
 
 // class component
 // merupakan class yang berfungsi untuk
@@ -107,7 +96,6 @@ export class Component extends Core{
 				if(args[0].hasOwnProperty(args[1])){
 
 					setProps(fragment,args[1],args[2]);
-					updateChild(fragment);
 
 				}else{
 
@@ -144,7 +132,6 @@ export class Component extends Core{
 				if(args[0].hasOwnProperty(args[1])){
 
 					setProps(fragment,args[1],args[2]);
-					updateChild(fragment);
 
 				}else{
 
@@ -186,7 +173,6 @@ export class Component extends Core{
 				if(args[0].hasOwnProperty(args[1])){
 
 					setProps(fragment,args[1],args[2]);
-					updateChild(fragment);
 
 				}else{
 
@@ -209,12 +195,55 @@ export class Component extends Core{
 
 	}
 
+	createCondition(name,inner){
+
+		let element = conditionalComponent(name,inner);
+
+		this.context = {
+			...this.context,
+			...element.props
+		}
+
+		const fragment = this.fragment;
+
+		this.state = new Reactivity(this.context).create({
+
+			eventSetter(args){
+
+				if(args[0].hasOwnProperty(args[1])){
+
+					setProps(fragment,args[1],args[2]);
+
+				}else{
+
+					console.warn("props not found!");
+
+				}
+
+			},
+			eventGetter(args){
+
+				return args[0][args[1]];
+				
+			}
+		});
+
+		return {
+			...element,
+			type: "conditionComponent"
+		}
+
+	}
+
 	// fungsi untuk menyusun component
 	// dari bentuk DOM TREE ke dalam 
 	// bentuk real DOM TREE
 	rootElement(child,parent){
 
-		parent.appendChild(child.element);
+		(child.type === "conditionComponent")? (()=>{
+			parent.appendChild(child.element)
+			child.update()
+		})() : parent.appendChild(child.element);
 
 		if(child.children.length > 0){
 

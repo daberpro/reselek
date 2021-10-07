@@ -15,7 +15,44 @@ App.create("div",{
 		"haha "+nama
 
 	)}}`,
+	attribute:{
+
+		id: "hallo",
+		class: "{{n}} seleku-body"
+
+	},
 	children: [
+		App.createCondition("h1",{
+			inner: "List belanja {{name}}",
+			props:{
+				show: false,
+				name: "Daber"
+			},
+			children: [
+				App.createLoop("ul",{
+
+					inner: "",
+					child: App.createChild("li",{
+						inner: " {{kl.nama}} ",
+						props:{
+							kl: null
+						}
+					}),
+					props:{
+						daftarBelanja: [{
+							nama: "sayur"
+						},{
+							nama: "buah"
+						},{
+							nama: "kacang - kacangan"
+						}]
+					},
+					loop: "kl of daftarBelanja"
+
+				})
+			],
+			condition: "show"
+		}),
 		App.createChild("h1",{
 			inner: "hello {{nama}}",
 			props: {
@@ -86,6 +123,7 @@ App.create("div",{
 				depan: "gilang"
 			}
 		},
+		n: "v-d-flex",
 		sum: (nama)=>{ //[1 - 3 - 0]
 
 			return nama + " ganteng"
@@ -93,8 +131,7 @@ App.create("div",{
 		},
 		list: [1,2,3] //[1 - 3 - 2]
 	}
-},
-App.fragment);
+});
 
 // [1 - 1]
 App.render(document.body);
