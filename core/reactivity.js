@@ -15,9 +15,11 @@ export class Reactivity{
 
 		const fragment = this.fragment;
 
+		const obj = this.object;
+
 		return new Proxy(this.object,{
 
-			set(args1,args2,args3,args4){
+			set(args1,args2,args3,args4,obj){
 
 				eventSetter([args1,args2,args3,args4,fragment]);
 
@@ -25,9 +27,8 @@ export class Reactivity{
 			},
 			get(args1,args2,args3,args4){
 
-				eventGetter([args1,args2,args3,args4,fragment]);
+				return eventGetter([args1,args2,args3,args4,fragment]);
 
-				return true;
 			}
 
 		});

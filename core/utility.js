@@ -56,6 +56,8 @@ export function checkBinding(text_node){
 // dari raw component
 export function createElement(name,inner){
 
+	(!(inner.hasOwnProperty("inner")) && inner instanceof Object)? inner["inner"] = "" : 0;
+
 	// variabel element merupakan instance atau 
 	// variabel yang berisi HTML element
 	let element = document.createElement(name);
@@ -86,7 +88,7 @@ export function createElement(name,inner){
 
 		// kita hilangkan semua tanda sipasi, tab, dan enter / breakline
 		// agar regex bisa membaca
-		inner["inner"] = inner["inner"].replace(/(\n|\t)/igm," ");
+		inner["inner"] = inner["inner"]?.replace(/(\n|\t)/igm," ");
 
 		// mengambil nilai binding dari fungsi checkBinding
 		// dan menyimpan nya ke dalam variabel bind
@@ -235,7 +237,7 @@ export function createElement(name,inner){
 				}
 
 			}
-			
+
 			if((inner instanceof Object)){
 
 				inner["inner"] = inner["inner"].replace(/(\n|\t)/igm," ");
@@ -443,6 +445,8 @@ export function loopComponent(name,inner){
 		props: parentElement["props"],
 		update(){
 
+			parentElement.update();
+
 			let allElement = [];
 
 			for(let x of this.children){
@@ -534,6 +538,8 @@ export function conditionalComponent(name, inner){
 	return {
 		...parentElement,
 		update(){
+
+			parentElement.update();
 
 			if(inner["props"][inner["condition"]]){
 

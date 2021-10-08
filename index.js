@@ -134,13 +134,40 @@ App.create("div",{
 });
 
 // [1 - 1]
-App.render(document.body);
+// App.render(document.body);
 
-// [1 - 5]
-App.state.umur = 100;
-App.state.num = [{nama: "daber"},{nama: "mark"},{nama: "mark"}]
-App.state.data = [9,8,7];
+// // [1 - 5]
+// App.state.umur = 100;
+// App.state.num = [{nama: "daber"},{nama: "mark"},{nama: "mark"}]
+// App.state.data = [9,8,7];
 
-window.App = App;
+// window.App = App;
 
-console.log(App.fragment)
+
+
+
+
+
+const Card = new Component();
+
+Card.create("h1",{
+	inner: "halo apa kabar {{user}}",
+	attribute: {
+		style: `
+		font-size: 100px;
+		font-family: sans-serif;
+		font-weight: 300;
+		`,
+		class: "v-d-flex"
+	},
+	props: {
+		user: "ari susanto"
+	}
+})
+
+Card.render(document.body);
+
+
+
+
+

@@ -174,6 +174,8 @@ export class Component extends Core{
 
 					setProps(fragment,args[1],args[2]);
 
+					
+
 				}else{
 
 					console.warn("props not found!");
@@ -240,10 +242,16 @@ export class Component extends Core{
 	// bentuk real DOM TREE
 	rootElement(child,parent){
 
-		(child.type === "conditionComponent")? (()=>{
+		if(child.type === "conditionComponent"){
+		
 			parent.appendChild(child.element)
 			child.update()
-		})() : parent.appendChild(child.element);
+		
+		}else{
+		
+			parent.appendChild(child.element);
+
+		}
 
 		if(child.children.length > 0){
 
