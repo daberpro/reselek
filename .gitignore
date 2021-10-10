@@ -1,4 +1,5 @@
-compiler/node_nodemodules
+compiler/node_modules
+node_modules
 index.html
 index.js
 "List To DO.txt"

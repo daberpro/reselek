@@ -254,7 +254,7 @@ class SelekuCompiler{
 		let firstTemplate = null;
 		let CSS = "";
 		let JS = `import { Component } from "seleku/core"
-		
+
 		const @seleku_name = new Component();`;
 
 		for(let x of fragment.childNodes){
@@ -288,43 +288,45 @@ class SelekuCompiler{
 
 }
 
-let compiler = new SelekuCompiler();
+module.exports = {SelekuCompiler};
 
-let a = compiler.compile(`
+// let compiler = new SelekuCompiler();
 
-	<style>
+// let a = compiler.compile(`
 
-		h1{
-			color: white;
-		}
+// 	<style>
 
-	</style>
+// 		h1{
+// 			color: white;
+// 		}
 
-	<h1 id="app" class="v-d-flex v-text-center" props="nama umur">
+// 	</style>
+
+// 	<h1 id="app" class="v-d-flex v-text-center" props="nama umur">
 		
-		hello world {{nama}} {{umur}}
+// 		hello world {{nama}} {{umur}}
 
-		<ul loop="x of list" props="list">
+// 		<ul loop="x of list" props="list">
 
-			<li props="x y" condition="y">
+// 			<li props="x y" condition="y">
 				
-				{{x}}
+// 				{{x}}
 
-				<span> dan {{y}}</span>
+// 				<span> dan {{y}}</span>
 
-			</li>
+// 			</li>
 
-		</ul>
+// 		</ul>
 
-	</h1>
+// 	</h1>
 
-	<script>
+// 	<script>
 
-		console.log("hello world");
+// 		console.log("hello world");
 
-	</script>
+// 	</script>
 
-`);
+// `);
 
 
-console.log(beautify(a.JS, { indent_size: 2, space_in_empty_paren: true }))
+// console.log(beautify(a.JS, { indent_size: 2, space_in_empty_paren: true }))
