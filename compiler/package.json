@@ -1,15 +1,33 @@
 {
-  "name": "compiler",
-  "version": "1.0.0",
-  "description": "",
-  "main": "compiler.js",
+  "name": "@selekudev/compiler",
+  "version": "1.0.16",
+  "description": "\"seleku compiler system\"",
+  "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "",
-  "license": "ISC",
+  "author": "daber",
+  "license": "MIT",
   "dependencies": {
+    "esbuild": "^0.13.4",
     "js-beautify": "^1.14.0",
     "parse5": "^6.0.1"
-  }
+  },
+  "devDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/daberpro/SelekuCompiler.git"
+  },
+  "keywords": [
+    "seleku",
+    "selekuCompiler",
+    "SelekuCompiler",
+    "Daber",
+    "daberdev",
+    "DaberDev"
+  ],
+  "bugs": {
+    "url": "https://github.com/daberpro/SelekuCompiler/issues"
+  },
+  "homepage": "https://github.com/daberpro/SelekuCompiler#readme"
 }

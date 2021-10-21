@@ -86,6 +86,16 @@ export function createElement(name,inner){
 	// jika tidak
 	else{
 
+		// mengechek apakah props turunan ada
+		if(inner.hasOwnProperty("inherit:props") && inner["inherit:props"] instanceof Object){
+
+			inner["props"] = {
+				...inner["props"],
+				...inner["inherit:props"]
+			}
+
+		}
+
 		// kita hilangkan semua tanda sipasi, tab, dan enter / breakline
 		// agar regex bisa membaca
 		inner["inner"] = inner["inner"]?.replace(/(\n|\t)/igm," ");
@@ -167,6 +177,16 @@ export function createElement(name,inner){
 		// menambahkan textnode dari _inner ke dalam element
 		element.appendChild(_inner);
 
+		if(inner.hasOwnProperty("event") && inner["event"] instanceof Object){
+
+			for(let x in inner["event"]){
+
+				element[x] = inner["event"][x];
+
+			}
+
+		}
+
 		if(inner.hasOwnProperty("attribute")) for(let x in inner["attribute"]){
 
 			let bind = checkBinding(inner["attribute"][x]);
@@ -204,13 +224,40 @@ export function createElement(name,inner){
 		_inner,
 		element,
 		content,
+		event: inner["event"] || {},
 		children,
+		"inherit:props": inner["inherit:props"]||{},
+		attribute: inner["attribute"] || {},
+		"@id": (()=>{
+
+			try{
+
+				return eval(inner["@id"]) || null;
+
+			}catch(err){
+
+				return inner["@id"];
+
+			}
+
+		})(),
+		type: "ChildComponent",
 		props: inner["props"] || {},
 		
 		// fungsi untuk melakukan update
 		// jika terjadi perubahan pada props
-		update(){
-		
+		update(callback = ()=>{}){
+
+			// mengechek apakah props turunan ada
+			if(inner.hasOwnProperty("inherit:props") && inner["inherit:props"] instanceof Object){
+
+				inner["props"] = {
+					...inner["props"],
+					...inner["inherit:props"]
+				}
+
+			}
+
 			let _inner = document.createTextNode(inner);
 
 			if(inner.hasOwnProperty("attribute")) for(let x in inner["attribute"]){
@@ -297,7 +344,10 @@ export function createElement(name,inner){
 
 			}
 
+			return callback(this);
+
 		}
+
 	};
 
 }
@@ -320,7 +370,12 @@ export function toString(b){
 	let c = Object.keys(b).map(e =>{
 
 		if(b[e] instanceof Array){
-			return `${e}:[${b[e]}]` 
+			return `${e}:[${b[e].map(x =>{
+
+				if(typeof x === "string") return `"${x}"`
+				else return x;
+
+			})}]` 
 		}
 
 		if(b[e] instanceof Object && typeof b[e] !== "function"){
@@ -329,7 +384,7 @@ export function toString(b){
 
 		}
 
-		return `${e}:${b[e]}`
+		return (typeof b[e] === "number")?`${e}:${b[e]}`:`${e}:"${b[e]}"`
 
 	});
 	
@@ -353,7 +408,7 @@ export function toString(b){
 
 }
 
-function toRawComponent(component){
+function toRawComponent(component,propsForAll = {}){
 
 	let children = [];
 
@@ -361,22 +416,46 @@ function toRawComponent(component){
 
 		for(let x of component.children){
 		
-			children.push(toRawComponent(x));
+			children.push(toRawComponent(x,propsForAll));
 		
 		}
 
 	}
 
+	// console.log(component)
+
 	let template = ``;
+	if(!(component.hasOwnProperty("attribute"))) component["attribute"] = {}
 
 	if(component.type === "ChildComponent"){
 
 		template = `
 
 			createElement("${component.name}",{
+				"@id": "${component["@id"] || null}",
 				inner: "${component.content}",
 				children: [${children}],
-				props: ${toString(component.props)}
+				attribute: ${toString(component["attribute"])},
+				"inherit:props": ${toString(component["inherit:props"] || {})},
+				props: ${toString({...component.props,...propsForAll})}
+			})
+
+		`;
+
+	}
+
+	if(component.type === "conditionComponent"){
+
+		template = `
+
+			conditionalComponent("${component.name}",{
+				"@id": "${component["@id"] || null}",
+				inner: "${component.content}",
+				children: [${children}],
+				attribute: ${toString(component["attribute"])},
+				props: ${toString({...component.props,...propsForAll})},
+				"inherit:props": ${toString(component["inherit:props"] || {})},
+				condition: "${component.condition}"
 			})
 
 		`;
@@ -388,9 +467,12 @@ function toRawComponent(component){
 		template = `
 
 			loopComponent("${component.name}",{
+				"@id": "${component["@id"] || null}",
 				inner: "${component.content}",
 				child: ${toRawComponent(component.child)},
-				props: ${toString(component.props)},
+				attribute: ${toString(component["attribute"])},
+				props: ${toString({...component.props,...propsForAll})},
+				"inherit:props": ${toString(component["inherit:props"] || {})},
 				loop: "${component.loop}"
 			})
 
@@ -402,12 +484,46 @@ function toRawComponent(component){
 
 }
 
+export function importComponent(child,props){
+
+	if(props !== void 0 && props !== null) child.props = props;
+
+	if(child.props.hasOwnProperty("@id")){
+
+		child["@id"] = child.props["@id"];
+		delete child.props["@id"];
+
+	}
+
+	if (child.props.hasOwnProperty("inherit:props")) {
+      child["inherit:props"] = child.props["inherit:props"];
+      delete child.props["inherit:props"];
+    }
+	
+	try{
+
+		return eval(toRawComponent(child,props));
+
+	}catch(err){
+
+		console.warn(err.message);
+
+	}
+
+}
+
 export function loopComponent(name,inner){
 
 	const parentElement = createElement(name,inner);
 	let token = inner["loop"].split(" ");
 
 	if(token[2] in inner["props"]){
+
+		if(!(inner["props"][token[2]] instanceof Array)){
+
+			inner["props"][token[2]] = [];
+
+		}
 
 		try{
 			let allChildren = [];
@@ -418,17 +534,39 @@ export function loopComponent(name,inner){
 
 			}
 
-			eval(`for(let ${token[0]} ${token[1]} inner["props"]["${token[2]}"]){
+			if(inner["child"].type !== "conditionComponent") eval(`for(let ${token[0]} ${token[1]} inner["props"]["${token[2]}"]){
 
 				parentElement["children"].push(createElement(inner["child"].name,{
 					inner: inner["child"].content,
 					props: {
-						${token[0]} 
+						...inner["props"],
+						${token[0]}
 					},
+					attribute: ${toString(inner["child"].attribute)},
+					"@id": inner["child"]["@id"],
+					event: inner["child"]["event"],
+					"inherit:props": inner["child"]["inherit:props"] || {},
 					children: [${allChildren.join()}]
 				}));
 
-			}`);
+			}`)
+
+			else eval(`for(let ${token[0]} ${token[1]} inner["props"]["${token[2]}"]){
+
+				parentElement["children"].push(conditionalComponent(inner["child"].name,{
+					inner: inner["child"].content,
+					props: {
+						...inner["props"],
+						${token[0]}
+					},
+					attribute: ${toString(inner["child"].attribute)},
+					"@id": inner["child"]["@id"],
+					event: inner["child"]["event"],
+					"inherit:props": inner["child"]["inherit:props"] || {},
+					children: [${allChildren.join()}]
+				}));
+
+			}`)
 
 		}catch(err){
 
@@ -443,7 +581,9 @@ export function loopComponent(name,inner){
 		child: inner["child"],
 		loop: inner["loop"],
 		props: parentElement["props"],
-		update(){
+		type: "LoopComponent",
+		update(callback = ()=>{}){
+
 
 			parentElement.update();
 
@@ -462,30 +602,58 @@ export function loopComponent(name,inner){
 				try{
 
 					let allChildren = [];
-
-					for(let x of inner["child"]["children"]){
+					let props = this.child["props"];
+					let condition = this.child.condition;
+					for(let x of this.child["children"]){
 
 						allChildren.push(toRawComponent(x));
 
 					}
+					if(inner["child"].type !== "conditionComponent"){
+							eval(`for(let ${token[0]} ${token[1]} inner["props"]["${token[2]}"]){
 
-					eval(`for(let ${token[0]} ${token[1]} this.props["${token[2]}"]){
+								this.children.push(createElement(inner["child"].name,{
+									inner: inner["child"].content,
+									props: {
+										...${toString(props)},
+										${token[0]}
+									},
+									attribute: ${toString(inner["child"].attribute)},
+									"@id": inner["child"]["@id"],
+									event: inner["child"]["event"],
+									"inherit:props": inner["child"]["inherit:props"] || {},
+									children: [${allChildren.join()}]
+								}));
 
-						this.children.push(createElement(inner["child"].name,{
-							inner: inner["child"].content,
-							props: {
-								${token[0]} 
-							},
-							children: [${allChildren.join()}]
-						}));
+							}`)
 
-					}`);
+					}else{
+							eval(`for(let ${token[0]} ${token[1]} inner["props"]["${token[2]}"]){
+
+								this.children.push(conditionalComponent(inner["child"].name,{
+									inner: inner["child"].content,
+									props: {
+										...${toString(props)},
+										${token[0]}
+									},
+									attribute: ${toString(inner["child"].attribute)},
+									"@id": inner["child"]["@id"],
+									condition: "${condition}",
+									event: inner["child"]["event"],
+									"inherit:props": inner["child"]["inherit:props"] || {},
+									children: [${allChildren.join()}]
+								}));
+
+							}`)
+					}
+
 
 				}catch(err){
 
 					console.warn(err.message);
 
 				}
+
 
 			}
 
@@ -494,6 +662,8 @@ export function loopComponent(name,inner){
 				rootElement(x,parentElement.element);
 
 			}
+
+			return callback(this);
 
 		}
 	}
@@ -517,7 +687,7 @@ export function conditionalComponent(name, inner){
 	const parentElement = createElement(name,inner);
 
 
-	if(inner["props"][inner["condition"]]){
+	if(eval(inner["props"][inner["condition"]])){
 
 		for(let x of parentElement.children){
 
@@ -537,11 +707,13 @@ export function conditionalComponent(name, inner){
 
 	return {
 		...parentElement,
-		update(){
+		type: "conditionComponent",
+		condition: inner["condition"],
+		update(callback = ()=>{}){
 
 			parentElement.update();
 
-			if(inner["props"][inner["condition"]]){
+			if(this.props[this.condition]){
 
 				
 				for(let x of parentElement.children){
@@ -560,6 +732,8 @@ export function conditionalComponent(name, inner){
 				}
 
 			}
+
+			return callback(this);
 
 		}
 	}

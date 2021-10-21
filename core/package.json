@@ -1,0 +1,23 @@
+{
+  "name": "@selekudev/core",
+  "version": "1.0.6",
+  "description": "\"core system for seleku\"",
+  "main": "component.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "selekucore",
+    "core"
+  ],
+  "author": "daber",
+  "license": "ISC",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/daberpro/SelekuCore.git"
+  },
+  "bugs": {
+    "url": "https://github.com/daberpro/SelekuCore/issues"
+  },
+  "homepage": "https://github.com/daberpro/SelekuCore#readme"
+}
