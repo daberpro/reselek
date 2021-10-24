@@ -140,7 +140,7 @@ find(args: id).event.event_name
 contoh
 
  ```html
-<h1 @id="message" props="nama_user">
+<h1 @id="message" props="nama_user" event="onclick">
 
 	hallo {{nama_user}}
 	
@@ -222,7 +222,22 @@ find("username").state.list_user = ["daberdev","seleku","js"]
 
 </script>
 ```
+##### # import component
 
+seleku juga memungkinkan anda yang ingin mengimport component dengan menggunakan `#import` di bagian header file, component yang di import menggunakan import `#import` tidak boleh memiliki export default, dan `#import` bisa jyga di gunakan untuk mengimport seperti `import` pada es 6
+contoh
+
+```js
+#import {
+ card
+} from "card.selekux"
+
+<div>
+ <card></card>
+</div>
+```
+
+file yang di import harus bertipekan `selekux` yang berarti merupakan component untuk seleku
 
 
 
