@@ -1,0 +1,47 @@
+# membuat core sistem seleku
+- membuat sistem create component dan fragment
+- menambahkan pembuatan component child
+- menambahkan sistem props
+- menambahkan sistem binding text
+- menambahkan state / reactive
+- menambahkan component loop
+- menambahkan component kondisi
+- menambahkan sistem set attribute dan dynamic attribute
+- menambahkan component import
+- menambahkan @id untuk membuat id dari component dan
+  meregisterkan ke dalam function find() dan mengembalikan
+  state
+- membuat seleku plugin API untuk memasukan plugin dari devloper lain
+- membuat seleku alias path plugin
+
+# Compiler seleku
+- menerapkan parse5 untuk membaca HTML dan mengubah ke AST
+- menerapkan js-bautify untuk mempercantik hasil compile
+- membuat fungsi createTemplate dan checkBinding
+- membuat class SelekuCompiler dan membuat constructor
+  untuk membuat nama file dan main object (main object adalah object dari component utama)
+- membuat setup untuk memasukan css dan js dari user
+
+
+https://selekudev.github.io/
+
+Hallo, mungkin temen - temen nggak asing lagi dengan framework / library javascript seperti react, vue, svelte, dan lain - lain bukan ?, dan semua itu merupakan frameork buatan orang luar
+
+jadi apa itu seleku, seleku ada framework frontend web yang memiliki berbagai macam fitur seperti binding data, props, inherit props dan masih banyak lagi dan framework ini merupakan framework buatan orang indonesia bagi temen - temen yang mau berkontribusi atau bergabung dan memiliki yang ingin di gabungkan dengan seleku silahkan bergabung
+
+salam kami, selekudev
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
